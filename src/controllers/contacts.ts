@@ -2,11 +2,15 @@ import { Request, Response } from 'express';
 import { uuid } from 'uuidv4';
 
 import { Controller } from "./controller";
+
 import { addContact, deleteContact, getAllContacts, getContactById, updateContact } from '../services/contacts';
 
-import { asyncWrapper } from "../utils/errorsHandlers";
 import { Paths } from '../interfaces/controllers';
 import { Contact } from 'interfaces/contacts';
+
+import { asyncWrapper } from "../utils/errorsHandlers";
+import { NotFoundError, InvalidParameterError } from '../utils/errors';
+
 import { contactValidateSchema } from 'validation/contacts';
 
 class Contacts extends Controller {
@@ -31,7 +35,7 @@ class Contacts extends Controller {
         const contact = await getContactById(id)
 
         if (!contact) {
-            res.status(404).json({message: 'Not Found'})
+            throw new NotFoundError('Contact not found')
         }
 
         return res.status(200).json({ data: contact })
@@ -44,9 +48,7 @@ class Contacts extends Controller {
         if(validatedData.error) {
             const [ errorLable ] = validatedData.error.details
 
-            return res.status(400).json({
-                message: `validation error: ${errorLable.context?.label}`
-            })
+            throw new InvalidParameterError(`validation error: ${errorLable.context?.label}`)
         }
 
         const newContact = {
@@ -69,17 +71,13 @@ class Contacts extends Controller {
         if(validatedData.error) {
             const [ errorLable ] = validatedData.error.details
 
-            return res.status(400).json({
-                message: `validation error: ${errorLable.context?.label}`
-            })
+            throw new InvalidParameterError(`validation error: ${errorLable.context?.label}`)
         }
 
         const updatedContact = await updateContact( id, contact )
 
         if(!updatedContact) {
-            return res.status(404).json({
-                message: 'Not found'
-            })
+            throw new NotFoundError('Not found')
         }
 
         return res.status(200).json(updatedContact)
@@ -90,9 +88,7 @@ class Contacts extends Controller {
         const deletedContact = await deleteContact(id)
 
         if(!deletedContact) {
-            return res.status(404).json({
-                message: 'Not found'
-            })
+            throw new NotFoundError('Not found')
         }
 
         return res.status(200).json({
