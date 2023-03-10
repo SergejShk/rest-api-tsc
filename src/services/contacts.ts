@@ -1,62 +1,40 @@
-import fs from 'fs';
-import path from 'path';
+import { Contacts } from '../models/contacts'
 
-import { Contact, IContact } from 'interfaces/contacts';
+import { IContact } from '../interfaces/contacts';
 
-const contactsPath = path.join(__dirname, '../../data/contacts.json')
 
 export const getAllContacts = async () => {
-    const contacts = await fs.promises.readFile(contactsPath, { encoding: 'utf8' })
-
-    return JSON.parse(contacts)
+    return await Contacts.find({})
 }
 
 export const getContactById = async (contactId: string) => {
-    const contacts = await getAllContacts()
-    const [contact] = contacts.filter((contact: IContact) => contact.id === contactId)
-
-    return contact
+    return await Contacts.findById(contactId)
 }
 
 export const addContact = async (contact: IContact) => {
-    const contacts = await getAllContacts()
-    const newConacts = [...contacts, contact]
-    fs.writeFile(contactsPath, JSON.stringify(newConacts, null, 2), () => {})
+    const newContact = new Contacts({...contact})
 
-    return contact
+    await newContact.save()
+
+    return newContact
 }
 
 export const updateContact = async (contactId: string, contact: IContact) => {
-    const { name, email, phone } = contact;
-    const contacts = await getAllContacts();
-    const contactIdx = contacts.findIndex((contact: IContact) => contact.id === contactId)
+const { name, email, phone, favorite } = contact
 
-    if( contactIdx === -1 ) {
-        throw new Error("No contact found")
-    }
+    return await Contacts.findByIdAndUpdate(contactId, {
+        $set: { name, email, phone, favorite }
+    })
+}
 
-    contacts[contactIdx] = {
-        [Contact.Id]: contactId,
-        name,
-        email,
-        phone,
-    }
+export const updateContactStatus = async (contactId: string, contact: IContact) => {
+    const { favorite } = contact;
 
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2), () => {})
-
-    return contacts[contactIdx]
+    return await Contacts.findByIdAndUpdate(contactId, {
+        $set: { favorite },
+    })
 }
 
 export const deleteContact = async (contactId: string) => {
-    const contacts = await getAllContacts();
-    const contactIdx = contacts.findIndex((contact: IContact) => contact.id === contactId)
-
-    if( contactIdx === -1 ) {
-        throw new Error("No contact found")
-    }
-
-    const [deletedContact] = contacts.splice(contactIdx, 1)
-    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2), () => {})
-
-    return deletedContact
+    return await Contacts.findByIdAndDelete(contactId);
 }

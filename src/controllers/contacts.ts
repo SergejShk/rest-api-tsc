@@ -1,17 +1,16 @@
 import { Request, Response } from 'express';
-import { uuid } from 'uuidv4';
 
 import { Controller } from "./controller";
 
-import { addContact, deleteContact, getAllContacts, getContactById, updateContact } from '../services/contacts';
+import { addContact, deleteContact, getAllContacts, getContactById, updateContact, updateContactStatus } from '../services/contacts';
 
 import { Paths } from '../interfaces/controllers';
-import { Contact } from 'interfaces/contacts';
+import { Contact, IContact } from '../interfaces/contacts';
 
 import { asyncWrapper } from "../utils/errorsHandlers";
 import { NotFoundError, InvalidParameterError } from '../utils/errors';
 
-import { contactValidateSchema } from 'validation/contacts';
+import { contactValidateSchema } from '../validation/contacts';
 
 class Contacts extends Controller {
     constructor() {
@@ -21,6 +20,7 @@ class Contacts extends Controller {
             .get("/:id", asyncWrapper(this.getById))
             .post("/", asyncWrapper(this.addContact))
             .put("/:id", asyncWrapper(this.updateContact))
+            .patch("/:id", asyncWrapper(this.updateContactStatus))
             .delete("/:id", asyncWrapper(this.deleteContact))
     }
 
@@ -51,11 +51,11 @@ class Contacts extends Controller {
             throw new InvalidParameterError(`validation error: ${errorLable.context?.label}`)
         }
 
-        const newContact = {
-            [Contact.Id]: uuid(),
+        const newContact: IContact = {
             [Contact.Name]: contact.name,
             [Contact.Email]: contact.email,
             [Contact.Phone]: contact.phone,
+            [Contact.Favorite]: contact.favorite,
         }
 
         const addedContact = await addContact(newContact)
@@ -79,6 +79,19 @@ class Contacts extends Controller {
         if(!updatedContact) {
             throw new NotFoundError('Not found')
         }
+
+        return res.status(200).json(updatedContact)
+    }
+
+    private updateContactStatus = async (req: Request, res: Response) => {
+        const {id} = req.params;
+        const contact = req.body;
+
+        if (!contact) {
+            throw new InvalidParameterError('missing field favorite')
+        }
+
+        const updatedContact = updateContactStatus(id, contact)
 
         return res.status(200).json(updatedContact)
     }
