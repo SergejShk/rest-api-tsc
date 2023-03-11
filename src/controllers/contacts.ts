@@ -11,6 +11,7 @@ import { asyncWrapper } from "../utils/errorsHandlers";
 import { NotFoundError, InvalidParameterError } from '../utils/errors';
 
 import { contactValidateSchema } from '../validation/contacts';
+import { validateSchema } from '../validation/validateSchema';
 
 class Contacts extends Controller {
     constructor() {
@@ -43,13 +44,8 @@ class Contacts extends Controller {
 
     private addContact = async (req: Request, res: Response) => {
         const contact = req.body;
-        const validatedData = contactValidateSchema.validate(contact)
 
-        if(validatedData.error) {
-            const [ errorLable ] = validatedData.error.details
-
-            throw new InvalidParameterError(`validation error: ${errorLable.context?.label}`)
-        }
+        validateSchema(contactValidateSchema, contact)
 
         const newContact: IContact = {
             [Contact.Name]: contact.name,
@@ -66,13 +62,8 @@ class Contacts extends Controller {
     private updateContact = async (req: Request, res: Response) => {
         const { id } = req.params;
         const contact = req.body;
-        const validatedData = contactValidateSchema.validate(contact)
-
-        if(validatedData.error) {
-            const [ errorLable ] = validatedData.error.details
-
-            throw new InvalidParameterError(`validation error: ${errorLable.context?.label}`)
-        }
+        
+        validateSchema(contactValidateSchema, contact)
 
         const updatedContact = await updateContact( id, contact )
 

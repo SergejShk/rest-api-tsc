@@ -1,35 +1,38 @@
 import mongoose from "mongoose";
 
-import { IContact } from '../interfaces/contacts';
-
 const { Schema, model } = mongoose;
 
-const contactSchema = new Schema<IContact>({
-    name: {
-        type: String,
-        minLength: 3,
-        maxLength: 30,
-        unique: true,
-        required: [true, "Set name for contact"],
-    },
-    email: {
-        type: String,
-        minLength: 5,
-        maxLength: 30,
-        unique: true,
-        required: true, 
-    },
-    phone: {
-        type: String,
-        minLength: 8,
-        maxLength: 20,
-        unique: true,
-        required: true,   
-    },
-    favorite: {
-        type: Boolean,
-        default: false,
-    }
-});
+import { Contact, IContact } from '../interfaces/contacts';
 
-export const Contacts = model('contacts', contactSchema);
+const contactSchema = new Schema<IContact>(
+    {
+        [Contact.Name]: {
+            type: String,
+            minLength: 3,
+            maxLength: 30,
+            unique: true,
+            required: [true, "Set name for contact"],
+        },
+        [Contact.Email]: {
+            type: String,
+            minLength: 5,
+            maxLength: 30,
+            unique: true,
+            required: true, 
+        },
+        [Contact.Phone]: {
+            type: String,
+            minLength: 8,
+            maxLength: 20,
+            unique: true,
+            required: true,   
+        },
+        [Contact.Favorite]: {
+            type: Boolean,
+            default: false,
+        }
+    },
+    { versionKey: false, timestamps: true }
+);
+
+export const Contacts = model<IContact>('contacts', contactSchema);

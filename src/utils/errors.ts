@@ -15,3 +15,14 @@ export class NotFoundError extends Error {
         this.status = 404
     }
 }
+
+export class DuplicateUserError extends Error {
+    status: number;
+    message: string;
+
+    constructor() {
+        super();
+        this.message = "User already exists"
+        this.status = 409
+    }
+}

@@ -1,3 +1,4 @@
 export enum Paths {
-    Contacts = "/contacts",
+    Contacts = "/api/contacts",
+    Auth = "/api/auth",
 }
