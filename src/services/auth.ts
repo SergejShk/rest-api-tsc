@@ -41,7 +41,7 @@ export const loginUser = async (body: IUser) => {
         throw new InvalidParameterError("Email or password is wrong")
     }
 
-     user.token = jwt.sign(
+     const token = jwt.sign(
         {
             [User.Id]: user._id,
             [User.Email]: user.email,
@@ -50,7 +50,14 @@ export const loginUser = async (body: IUser) => {
         { expiresIn: "1h" }
      )
 
+     await Users.findByIdAndUpdate(user._id, { token })
+
+     user.token = token
      const { password, ...newUser } = user.toObject()
 
     return { newUser }
+}
+
+export const logoutUser = async ( userId: string ) => {
+    await Users.findByIdAndUpdate(userId, { token: '' })
 }

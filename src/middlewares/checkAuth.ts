@@ -24,7 +24,7 @@ export const checkAuth = async (req: Request, _: Response, next: NextFunction) =
 
         const user = await Users.findById(id)
 
-        if ( !user ) {
+        if ( !user || !user.token || user.token !== token ) {
             throw new UnauthorizedError()
         }
 

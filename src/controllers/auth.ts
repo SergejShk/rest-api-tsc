@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 
 import { Controller } from "./controller";
 
-import { loginUser, signupUser } from '../services/auth';
+import { loginUser, logoutUser, signupUser } from '../services/auth';
+
+import { checkAuth } from '../middlewares/checkAuth';
 
 import { asyncWrapper } from "../utils/errorsHandlers";
 
@@ -17,6 +19,7 @@ class Auth extends Controller {
         this.router
             .post("/signup", asyncWrapper(this.register))
             .post("/login", asyncWrapper(this.login))
+            .patch("/logout", checkAuth, asyncWrapper(this.logout))
     }
 
     private register = async (req: Request, res: Response) => {
@@ -33,6 +36,15 @@ class Auth extends Controller {
         const user = await loginUser(req.body)
       
         return res.status(200).json(user)
+    }
+
+    private logout = async (req: Request, res: Response) => {
+        //@ts-ignore
+        const { id } = req.user
+
+        await logoutUser(id)
+
+        return res.status(204).json('No content')
     }
 }
 
