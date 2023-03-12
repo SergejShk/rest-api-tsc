@@ -6,10 +6,16 @@ export enum User {
     Token = 'token',
 }
 
+export enum ISubscription {
+    Starter = 'starter',
+    Pro = 'pro',
+    Business = 'business',
+}
+
 export interface IUser {
     [User.Id]?: string,
     [User.Email]: string,
     [User.Password]: string,
-    [User.Subscribtion]?: string
-    [User.Token]?: boolean
+    [User.Subscribtion]?: ISubscription,
+    [User.Token]?: string,
 }

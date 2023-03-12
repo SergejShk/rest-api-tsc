@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { Controller } from "./controller";
 
-import { signupUser } from '../services/auth';
+import { loginUser, signupUser } from '../services/auth';
 
 import { asyncWrapper } from "../utils/errorsHandlers";
 
@@ -16,15 +16,23 @@ class Auth extends Controller {
         super(Paths.Auth)
         this.router
             .post("/signup", asyncWrapper(this.register))
+            .post("/login", asyncWrapper(this.login))
     }
 
     private register = async (req: Request, res: Response) => {
         validateSchema(userValidateSchema, req.body)
 
-        const response = await signupUser(req.body)
-        const {password, ...user} = response.toObject()
+        const user = await signupUser(req.body)
 
         return res.status(201).json(user)
+    }
+
+    private login = async (req: Request, res: Response) => {
+        validateSchema(userValidateSchema, req.body)
+
+        const user = await loginUser(req.body)
+      
+        return res.status(200).json(user)
     }
 }
 

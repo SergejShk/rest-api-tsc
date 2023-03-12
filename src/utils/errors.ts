@@ -26,3 +26,14 @@ export class DuplicateUserError extends Error {
         this.status = 409
     }
 }
+
+export class UnauthorizedError extends Error {
+    status: number;
+    message: string;
+
+    constructor() {
+        super();
+        this.message = "Unauthorized"
+        this.status = 401
+    }
+}
