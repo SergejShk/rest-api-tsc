@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
+import fs from 'fs/promises'
+import path from 'path'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -60,4 +62,26 @@ export const loginUser = async (body: IUser) => {
 
 export const logoutUser = async ( userId: string ) => {
     await Users.findByIdAndUpdate(userId, { token: '' })
+}
+
+export const uploadAvatarService = async ( userId: string, file: any ) => {
+    const { path: tmpDir, originalname } = file;
+    const [extension] = originalname.split(".").reverse();
+    const newNameAvatar = `${userId}.${extension}`
+
+    const uploadDir = path.join(
+        __dirname,
+        "../",
+        "../",
+        "public",
+        newNameAvatar
+      );
+
+    await fs.rename(tmpDir, uploadDir);
+
+    return await Users.findByIdAndUpdate(
+        userId,
+        { avatarURL: path.join("avatars", newNameAvatar) },
+        { new: true }
+      );
 }

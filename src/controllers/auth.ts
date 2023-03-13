@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { Controller } from "./controller";
 
-import { loginUser, logoutUser, signupUser } from '../services/auth';
+import { loginUser, logoutUser, signupUser, uploadAvatarService } from '../services/auth';
 
 import { checkAuth } from '../middlewares/checkAuth';
 
@@ -10,6 +10,8 @@ import { asyncWrapper } from "../utils/errorsHandlers";
 
 import { validateSchema } from '../validation/validateSchema';
 import { userValidateSchema } from '../validation/users';
+
+import { uploadFiles } from '../middlewares/uploadFiles';
 
 import { Paths } from '../interfaces/controllers';
 
@@ -20,6 +22,7 @@ class Auth extends Controller {
             .post("/signup", asyncWrapper(this.register))
             .post("/login", asyncWrapper(this.login))
             .patch("/logout", checkAuth, asyncWrapper(this.logout))
+            .patch("/avatar", checkAuth, uploadFiles.single('avatar'), asyncWrapper(this.uploadAvatar))
     }
 
     private register = async (req: Request, res: Response) => {
@@ -45,6 +48,15 @@ class Auth extends Controller {
         await logoutUser(id)
 
         return res.status(204).json('No content')
+    }
+
+    private uploadAvatar = async (req: Request, res: Response) => {
+        //@ts-ignore
+        const { id: userId } = req.user;
+
+        const user = await uploadAvatarService(userId, req.file);
+      
+        res.status(200).json({ avatarURL: user?.avatarURL });
     }
 }
 

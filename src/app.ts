@@ -12,6 +12,7 @@ const formatLogger = app.get("env") === "development" ? "dev" : "short"
 app.use(logger(formatLogger));
 app.use(cors())
 app.use(express.json())
+app.use(express.static('public'))
 
 app.use(auth.path, auth.router)
 app.use(contacts.path, contacts.router)

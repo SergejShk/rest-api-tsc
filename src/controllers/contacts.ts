@@ -26,12 +26,13 @@ class Contacts extends Controller {
     constructor() {
         super(Paths.Contacts);
         this.router
-            .get("/", checkAuth, asyncWrapper(this.getAll))
-            .get("/:id", checkAuth, asyncWrapper(this.getById))
-            .post("/", checkAuth, asyncWrapper(this.addContact))
-            .put("/:id", checkAuth, asyncWrapper(this.updateContact))
-            .patch("/:id", checkAuth, asyncWrapper(this.updateContactStatus))
-            .delete("/:id", checkAuth, asyncWrapper(this.deleteContact))
+            .use(checkAuth)
+            .get("/", asyncWrapper(this.getAll))
+            .get("/:id", asyncWrapper(this.getById))
+            .post("/", asyncWrapper(this.addContact))
+            .put("/:id", asyncWrapper(this.updateContact))
+            .patch("/:id", asyncWrapper(this.updateContactStatus))
+            .delete("/:id", asyncWrapper(this.deleteContact))
     }
 
     private getAll = async (req: Request, res: Response ) => {

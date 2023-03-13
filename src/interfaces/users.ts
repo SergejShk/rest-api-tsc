@@ -4,6 +4,7 @@ export enum User {
     Password = 'password',
     Subscribtion = 'subscription',
     Token = 'token',
+    AvatarURL = 'avatarURL',
 }
 
 export enum ISubscription {
@@ -18,4 +19,5 @@ export interface IUser {
     [User.Password]: string,
     [User.Subscribtion]?: ISubscription,
     [User.Token]?: string,
+    [User.AvatarURL]: string,
 }

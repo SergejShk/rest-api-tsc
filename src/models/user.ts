@@ -24,6 +24,10 @@ const userSchema = new Schema<IUser> (
             type: String,
             default: '', 
         },
+        [User.AvatarURL]: {
+            type: String,
+            required: true,
+        }
     },
     { versionKey: false, timestamps: true }
 )
